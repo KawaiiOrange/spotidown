@@ -1,14 +1,14 @@
-# Downtify (frontend) — forked proxy UI
+# 🚀 Downtify (Frontend) — forked proxy UI
 
 ![Downtify Preview](assets/preview.png)
 
-> Downtify is the graphical/automation piece (frontend + server-side automation) of a Spotidown-based downloader. This repository is a fork of the original Spotidown API/UI and **this API is a fork** — see Credits and "Changes from the original".
+> Downtify is the graphical/automation piece (frontend + server-side automation) of a Spotidown-based downloader. This repository is a fork of the original Spotidown project — **this API is a fork**.
 
-WARNING: This project automates web scraping and downloads MP3 files. Downloading copyrighted material may be illegal in your jurisdiction. Use responsibly and at your own risk.
+⚠️ **Warning:** Downtify automates web scraping and downloads MP3 files. Downloading copyrighted material may be illegal in your jurisdiction. Use responsibly and at your own risk.
 
 ---
 
-## Credits (original authors first)
+## ✨ Credits (original authors first)
 
 - Original Spotidown authors / upstream project (the code this repo was forked from)
 - spotidown.app — original frontend that this project automates
@@ -18,11 +18,9 @@ Libraries and projects used:
 - Puppeteer — https://pptr.dev/
 - (Optional) spotify-web-api-node — https://github.com/thelinmichael/spotify-web-api-node
 
-If you want explicit credit lines for named contributors from the original repo, provide their names or a link and I can add them here.
-
 ---
 
-## What Downtify is
+## 🎯 What Downtify is
 
 Downtify is a Bun/TypeScript-based proxy UI and automation layer that controls a headless Chromium instance (via Puppeteer) to drive the Spotidown frontend and resolve direct MP3 download URLs for Spotify tracks. It provides a small Express API for programmatic access and server-side playlist downloads.
 
@@ -30,77 +28,63 @@ This repository represents the graphical/automation portion (the UI + automation
 
 ---
 
-## Prerequisites
+## 🧰 Prerequisites
 
-These are required to run Downtify:
+You need the following installed / available:
 
-- Bun (v1.0+) — recommended runtime (runs TypeScript directly and has built-in fetch)
+- Bun (v1.0+) — recommended runtime (runs TypeScript directly and includes fetch)
 - Node.js (v18+) — required only if running under Node instead of Bun, and for Puppeteer compatibility
 - Puppeteer — headless Chromium automation used to interact with spotidown.app
 
-Notes about spotify-web-api-node and credentials:
-- spotify-web-api-node is optional. This fork can run without it.
+Notes about Spotify integration:
+- spotify-web-api-node is optional. Downtify runs without it.
 - CLIENT_ID and CLIENT_SECRET are optional: when provided, Downtify will use Spotify's client credentials flow to fetch richer metadata (and enable ISRC lookup). When not provided, Downtify falls back to scraping Spotify embed pages for metadata and still performs downloads via the Spotidown scraping flow.
 
 ---
 
-## Quick overview of endpoints
+## 🔌 Quick overview of endpoints
 
-- GET / -> status and endpoints listing
-- GET /track/:id -> returns MP3 (attachment) for Spotify track id
-- POST /track/url -> body: { url } -> returns metadata + download endpoint
-- GET /track/:id/info -> track metadata (Spotify API preferred, embed fallback)
-- GET /isrc/:isrc -> search Spotify by ISRC and return download (requires Spotify credentials for best results; otherwise may be limited)
-- GET /playlist/:id -> playlist metadata + list of tracks
-- POST /playlist/download-all -> body: { url, jobId? } -> downloads tracks to `downloads/<playlist>/` on the server
-- GET /playlist/zip/progress/:jobId -> SSE progress updates for playlist jobs
+- `GET /` -> status and endpoints listing
+- `GET /track/:id` -> returns MP3 (attachment) for Spotify track id
+- `POST /track/url` -> body: `{ url }` -> returns metadata + download endpoint
+- `GET /track/:id/info` -> track metadata (Spotify API preferred, embed fallback)
+- `GET /isrc/:isrc` -> search Spotify by ISRC and return download (best with credentials; otherwise limited)
+- `GET /playlist/:id` -> playlist metadata + list of tracks
+- `POST /playlist/download-all` -> body: `{ url, jobId? }` -> downloads tracks to `downloads/<playlist>/` on the server
+- `GET /playlist/zip/progress/:jobId` -> SSE progress updates for playlist jobs
 
-Important: Playlist downloads are saved to the repository's `downloads/` folder (e.g. `downloads/<sanitized-playlist-name>/`). The files are written to disk even if an individual client progress bar does not show every saved file — check the `downloads/` directory on the server for saved tracks.
-
----
-
-## What changed from the original Spotidown (API changes in this fork)
-
-- Project renamed to "Downtify" and reorganized as a Bun/TypeScript frontend + server automation piece.
-- Exposed an Express HTTP API for programmatic use (endpoints listed above).
-- Added server-side playlist downloading: when you POST to `/playlist/download-all`, tracks are saved to `downloads/<sanitized-playlist-name>/` on disk.
-- Added Server-Sent Events (SSE) for progress reporting when a `jobId` is provided; note that not all file saves may be reflected item-by-item in a client UI — the server still writes every downloaded MP3 to disk.
-- Made Spotify API integration optional: the server uses Spotify Web API if CLIENT_ID/CLIENT_SECRET are supplied, otherwise it falls back to scraping the Spotify embed pages for metadata. spotify-web-api-node is optional and not required to download tracks.
-- Improved filename sanitization and duplicate filename handling for playlists.
-- Periodic refresh of the Spotidown page (every 5 minutes) to try to keep the Puppeteer session alive.
-- Kept some logging and user-facing messages in Portuguese from the original fork; these can be standardized on request.
+> Important: When you download a playlist via `/playlist/download-all`, all MP3 files are saved to the project's `downloads/<sanitized-playlist-name>/` folder on disk — even if the client progress bar does not show each file save. Always check the `downloads/` directory for the saved files.
 
 ---
 
-## Current known issues and limitations
+## 🔁 What changed from the original Spotidown (API changes in this fork)
 
-1. Spotify credentials missing or invalid
-   - CLIENT_ID/CLIENT_SECRET are optional. If you don't provide them, metadata and ISRC search may be limited; downloads still work via Spotidown scraping.
-
-2. Puppeteer / Chromium launch failures
-   - Puppeteer may fail to launch if Chromium is missing, permissions are restricted, or sandbox flags are required. Provide `executablePath` or run with `--no-sandbox` in some environments.
-
-3. grecaptcha / reCAPTCHA issues
-   - The flow depends on grecaptcha being available on the Spotidown page. If grecaptcha changes or is blocked, download resolution can fail.
-
-4. Spotidown or Spotify frontend changes
-   - Scraping relies on the current HTML/JSON structure of Spotidown and Spotify embed pages. Upstream frontend changes can break parsing and require code updates.
-
-5. MP3 fetch failures
-   - Resolved MP3 URLs may expire or be blocked by the remote host, causing fetch errors.
-
-6. Hard-coded port & language mixing
-   - Server listens on port 3045 by default and some log/error messages are in Portuguese. Consider making the port configurable and standardizing messages.
-
-7. SSE job cleanup
-   - Jobs are removed shortly after completion; clients reconnecting late may not find job state.
-
-8. package.json convenience
-   - Add a `start` script and provide compiled JS for Node-based deployments if needed.
+- Project renamed to **Downtify** and reorganized as a Bun/TypeScript frontend + server automation piece.
+- Exposed an Express HTTP API to allow programmatic downloads and integrations (endpoints listed above).
+- Added server-side playlist downloading that saves MP3 files to `downloads/<sanitized-playlist-name>/`.
+- Added optional Server-Sent Events (SSE) progress reporting for playlist downloads using an optional `jobId` (clients can listen on `/playlist/zip/progress/:jobId`).
+- Spotify Web API integration is optional: the server uses Spotify Web API if `CLIENT_ID`/`CLIENT_SECRET` are supplied; otherwise it falls back to scraping Spotify embed pages.
+- Implemented ISRC lookup endpoint which uses the Spotify API when available.
+- Improved filename sanitization and duplicate-filename collision handling.
+- Periodic refresh of the Spotidown page (every 5 minutes) to help keep the Puppeteer session alive.
+- Preserved some Portuguese messages from the forked code (can be standardized on request).
 
 ---
 
-## Installation & running
+## ⚠️ Known issues & limitations
+
+1. **Spotify credentials are optional** — `CLIENT_ID`/`CLIENT_SECRET` are optional; without them metadata and ISRC search may be limited, but downloads still work via Spotidown scraping.
+2. **Puppeteer / Chromium launch failures** — provide `executablePath` or run with `--no-sandbox` in containerized environments.
+3. **grecaptcha / reCAPTCHA issues** — if grecaptcha is blocked or page changes, the recaptcha execution can fail and downloads will not resolve.
+4. **Spotidown / Spotify frontend changes** — scraping logic depends on current HTML/JSON structures; upstream changes can break parsing.
+5. **MP3 fetch failures** — resolved MP3 URLs may expire or be blocked.
+6. **Default port & language mixing** — server listens on port `3045` by default and some messages are in Portuguese; consider configuring `PORT` and standardizing messages.
+7. **SSE job cleanup** — jobs are removed shortly after completion; clients reconnecting late may not find job state.
+8. **No `start` script by default** — consider adding `scripts.start` to `package.json` for easier deployment.
+
+---
+
+## ▶️ How to run (super simple)
 
 1. Install dependencies (Bun recommended):
 
@@ -108,42 +92,60 @@ Important: Playlist downloads are saved to the repository's `downloads/` folder 
 bun install
 ```
 
-2. Create `.env` if you want to use Spotify API features (optional):
+2. Start the API server:
 
 ```bash
-CLIENT_ID=your_spotify_client_id
-CLIENT_SECRET=your_spotify_client_secret
+bun run index.ts
 ```
 
-3. Run with Bun:
+3. After the server is running, open the HTML UI in your browser manually (it does NOT open the browser for you — yes, really, you have to open it yourself 👀). Example:
+
+- Open the UI file in your browser or visit `http://localhost:3045` (depending on how your UI is served).
+
+Why it doesn't open the browser automatically? Because it keeps things simple, predictable, and friendly for server environments (and because you asked — "porque sim -_-" 😅).
+
+---
+
+## 🛠 Example usage
+
+- Download a single track:
 
 ```bash
-bun index.ts
+curl -L http://localhost:3045/track/<TRACK_ID> -o track.mp3
 ```
 
-Or run with Node (Node 18+, compile TypeScript first or run with a runner):
+- Inspect track metadata from a Spotify URL:
 
 ```bash
-# after compiling to JS
-node dist/index.js
+curl -X POST -H "Content-Type: application/json" -d '{"url":"https://open.spotify.com/track/<TRACK_ID>"}' http://localhost:3045/track/url
+```
+
+- Download an entire playlist server-side (files saved to `downloads/`):
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"url":"https://open.spotify.com/playlist/<ID>", "jobId":"job-1234"}' http://localhost:3045/playlist/download-all
+# then check downloads/<sanitized-playlist-name>/ for mp3 files
 ```
 
 ---
 
-## Example usage
+## 🎨 Little effects (efeitinhos) — README styling & UX
 
-- Download a track: `curl -L http://localhost:3045/track/<TRACK_ID> -o track.mp3`
-- Get metadata from a track URL: `POST /track/url` with JSON `{ "url": "https://open.spotify.com/track/<TRACK_ID>" }`
-- Download whole playlist server-side: `POST /playlist/download-all` with `{ "url": "https://open.spotify.com/playlist/<ID>", "jobId":"job-1234" }` — files will appear in `downloads/<playlist>/`.
+- Added emoji headers and horizontal separators for better scanning.
+- Included an image preview placeholder at `assets/preview.png` to give a visual impression of the UI.
+- Code blocks and inline badges make important commands stand out.
+
+If you want more visual polish I can add:
+- Shields/badges (version, license, bun support)
+- A real hero image/banner and smaller screenshots gallery
+- A table of endpoints with icons
 
 ---
 
-## Make it prettier / contribution
+## ✅ Next actions you can ask me to do now
 
-If you want I can:
-- Standardize all messages to English
-- Add a configurable PORT environment variable
-- Add a `scripts.start` to package.json
-- Add the actual screenshot image file into `assets/preview.png` (you provided an image in chat). If you want me to upload that image into the repo, confirm and I will add it at `assets/preview.png` and keep the README image reference as shown above.
+1. Add the screenshot you sent to `assets/preview.png` and commit it.
+2. Add a `start` script to `package.json` and make `PORT` configurable.
+3. Translate all server messages to English or Portuguese.
 
-If you confirm, I will commit the changes (or push into a new branch if you prefer).
+Tell me which of the above you want and which branch to commit to (default is `main`).
