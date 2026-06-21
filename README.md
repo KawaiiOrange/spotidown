@@ -12,12 +12,12 @@
 
 - Original Spotidown authors / upstream project (the code this repo was forked from)
 - spotidown.app — original frontend that this project automates
-
+- spotidown api proxy server - https://github.com/ferrymehdi
 Libraries and projects used:
 - Bun — https://bun.sh/
 - Puppeteer — https://pptr.dev/
 - (Optional) spotify-web-api-node — https://github.com/thelinmichael/spotify-web-api-node
-
+  
 ---
 
 ## 🎯 What Echofy is
@@ -30,11 +30,14 @@ This repository represents the graphical/automation portion (the UI + automation
 
 ## 🧰 Prerequisites
 
-You need the following installed / available:
+Choose one:
 
-- **Docker + Docker Compose** (Recommended - works everywhere)
-- Or: Bun (v1.0+) + Node.js (v18+)
-- Puppeteer — headless Chromium automation used to interact with spotidown.app
+### Option A: Docker (Easiest - Optional)
+- Docker + Docker Compose
+
+### Option B: Local (No Docker)
+- Bun (v1.0+) or Node.js (v18+)
+- Chromium/Chrome installed
 
 Notes about Spotify integration:
 - spotify-web-api-node is optional. Echofy runs without it.
@@ -42,9 +45,9 @@ Notes about Spotify integration:
 
 ---
 
-## 🐳 Docker (Recommended - Works Everywhere)
+## ▶️ How to run
 
-### Quick Start
+### 🐳 Option A: With Docker (Recommended - Works Everywhere)
 
 ```bash
 git clone https://github.com/KawaiiOrange/Echofy.git
@@ -56,8 +59,7 @@ Open: **http://localhost:3045**
 
 Downloads saved to: `./downloads/`
 
-### Commands
-
+**Docker Commands:**
 ```bash
 # View logs
 docker-compose logs -f echofy
@@ -74,9 +76,31 @@ docker system prune -a --volumes -f
 
 ---
 
-## 🏠 Multiple Containers (Casa + Outros Sistemas)
+### 💻 Option B: Without Docker (Local)
 
-Want to run Echofy on different machines? Use this `docker-compose.yml`:
+#### 1. Install dependencies
+
+```bash
+git clone https://github.com/KawaiiOrange/Echofy.git
+cd Echofy
+bun install
+```
+
+#### 2. Start the server
+
+```bash
+bun run index.ts
+```
+
+#### 3. Open in browser
+
+Navigate to: **http://localhost:3045**
+
+---
+
+## 🏠 Multiple Containers (Casa + Other Systems)
+
+Want to run Echofy on different machines with Docker? Use this `docker-compose.yml`:
 
 ```yaml
 version: '3.8'
@@ -98,7 +122,7 @@ services:
       - NODE_ENV=production
       - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox
 
-  # Outro sistema
+  # Other system
   echofy-outros:
     build: .
     container_name: echofy-outros
@@ -120,12 +144,12 @@ services:
 docker-compose up -d
 
 # Casa: http://localhost:3045 (downloads in ./downloads-casa/)
-# Outros: http://localhost:3046 (downloads in ./downloads-outros/)
+# Other: http://localhost:3046 (downloads in ./downloads-outros/)
 ```
 
 ---
 
-## 📁 File Structure for Docker
+## 📁 File Structure
 
 ```
 Echofy/
@@ -173,46 +197,18 @@ Echofy/
 - Implemented ISRC lookup endpoint.
 - Improved filename sanitization and duplicate-filename collision handling.
 - Periodic refresh of the Spotidown page (every 15 minutes).
-- **Docker support** — run anywhere with `docker-compose up -d`.
+- **Docker support** — optional, run with `docker-compose up -d` or without Docker locally.
 
 ---
 
 ## ⚠️ Known issues & limitations
 
 1. **Spotify credentials are optional** — without them metadata and ISRC search may be limited, but downloads still work.
-2. **Puppeteer / Chromium launch failures** — use `--no-sandbox` in containerized environments.
+2. **Puppeteer / Chromium launch failures** — install Chromium locally or use Docker.
 3. **grecaptcha / reCAPTCHA issues** — if blocked, downloads may fail.
 4. **Spotidown / Spotify frontend changes** — scraping logic depends on HTML/JSON structures.
 5. **MP3 fetch failures** — resolved URLs may expire or be blocked.
 6. **SSE job cleanup** — jobs are removed shortly after completion.
-
----
-
-## ▶️ How to run (super simple)
-
-### With Docker (Recommended)
-
-```bash
-docker-compose up -d
-```
-
-Open: http://localhost:3045
-
-### Without Docker (Local)
-
-1. Install dependencies:
-
-```bash
-bun install
-```
-
-2. Start the server:
-
-```bash
-bun run index.ts
-```
-
-3. Open: http://localhost:3045
 
 ---
 
@@ -243,10 +239,14 @@ curl -X POST -H "Content-Type: application/json" \
 
 ### Start the server
 
+**With Docker:**
+```bash
+docker-compose up -d
+```
+
+**Without Docker:**
 ```bash
 bun run index.ts
-# or with Docker:
-docker-compose up -d
 ```
 
 ### Open in your browser
@@ -283,6 +283,7 @@ If not provided, Echofy falls back to embed scraping.
 ## 🔧 Troubleshooting
 
 - **Downloads failing?** Check server logs for errors (grecaptcha, Spotidown changes, etc)
+- **Chromium not found?** Install it: `sudo apt-get install chromium` (Linux) or use Docker
 - **Docker issues?** Make sure Docker daemon is running
 - **reCAPTCHA blocked?** Try restarting the server
 - **Using Node?** Requires Node 18+ (Bun recommended)
@@ -294,7 +295,7 @@ If not provided, Echofy falls back to embed scraping.
 - **Backend**: TypeScript + Express + Bun
 - **Frontend**: HTML + CSS + Vanilla JS + GSAP
 - **Automation**: Puppeteer + Spotidown
-- **Containerization**: Docker + Docker Compose
+- **Containerization**: Docker + Docker Compose (Optional)
 
 ---
 
