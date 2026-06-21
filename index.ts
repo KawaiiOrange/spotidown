@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.send(html);
   } catch (e) {
-    res.json({ status: "ok", message: "TurboSpot API running" });
+    res.json({ status: "ok", message: "Echofy API running" });
   }
 });
 
@@ -521,7 +521,7 @@ async function fetchMp3Buffer(mp3Url: string): Promise<Buffer> {
 app.get("/api", (req, res) => {
   res.json({
     status: "ok",
-    message: "TurboSpot API running",
+    message: " API running",
     endpoints: {
       track: "GET /track/:id",
       track_url: "POST /track/url",
@@ -676,7 +676,7 @@ app.post("/playlist/download-all", async (req, res) => {
 initBrowserAndPage()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`✅ downtify running at http://localhost:${PORT}`);
+      console.log(`✅ Echofy running at http://localhost:${PORT}`);
     });
   })
   .catch((e) => {
