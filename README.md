@@ -1,4 +1,5 @@
 # Echofy (Frontend) — forked proxy UI
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/535de729-dd88-4b39-a575-ddd8fccf09e4" />
 
 *Echofy* 
 > Echofy is the graphical/automation piece (frontend + server-side automation) of a Spotidown-based downloader. This repository is a fork of the original Spotidown project — **this API is a fork**.
