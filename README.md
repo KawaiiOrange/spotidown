@@ -1,7 +1,9 @@
-# Echofy (Frontend) — forked proxy UI
+# 🚀 Echofy (Frontend) — forked proxy UI
+
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/535de729-dd88-4b39-a575-ddd8fccf09e4" />
 
 *Echofy* 
+
 > Echofy is the graphical/automation piece (frontend + server-side automation) of a Spotidown-based downloader. This repository is a fork of the original Spotidown project — **this API is a fork**.
 
 ⚠️ **Warning:** Echofy automates web scraping and downloads MP3 files. Downloading copyrighted material may be illegal in your jurisdiction. Use responsibly and at your own risk.
@@ -13,11 +15,12 @@
 - Original Spotidown authors / upstream project (the code this repo was forked from)
 - spotidown.app — original frontend that this project automates
 - spotidown api proxy server - https://github.com/ferrymehdi
-      Libraries and projects used:
+
+Libraries and projects used:
 - Bun — https://bun.sh/
 - Puppeteer — https://pptr.dev/
 - (Optional) spotify-web-api-node — https://github.com/thelinmichael/spotify-web-api-node
-  
+
 ---
 
 ## 🎯 What Echofy is
@@ -25,6 +28,55 @@
 Echofy is a Bun/TypeScript-based proxy UI and automation layer that controls a headless Chromium instance (via Puppeteer) to drive the Spotidown frontend and resolve direct MP3 download URLs for Spotify tracks. It provides a small Express API for programmatic access and server-side playlist downloads.
 
 This repository represents the graphical/automation portion (the UI + automation) and not the original upstream project.
+
+---
+
+## 🚀 Quick Start (Docker Hub - Recommended)
+
+### CasaOS
+
+1. Open CasaOS: `http://192.168.2.5:81`
+2. **App Store** → **Add Custom App**
+3. Copy this YAML:
+
+```yaml
+version: '3'
+services:
+  echofy:
+    image: kwayorange/echofy:latest
+    container_name: echofy
+    restart: unless-stopped
+    ports:
+      - "3045:3045"
+    volumes:
+      - /DATA/AppData/echofy:/app
+      - /DATA/Media/Music:/app/downloads
+    environment:
+      - NODE_ENV=production
+      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox
+    shm_size: '256mb'
+```
+
+4. Click **Install**
+5. Open: `http://192.168.2.5:3045`
+
+### Other Systems (Debian, Ubuntu, Linux)
+
+```bash
+git clone https://github.com/KawaiiOrange/Echofy.git
+cd Echofy
+docker-compose up -d
+```
+
+Open: **http://localhost:3045**
+
+### Simple Command Line
+
+```bash
+docker run -d -p 3045:3045 \
+  -v downloads:/app/downloads \
+  kwayorange/echofy:latest
+```
 
 ---
 
@@ -98,53 +150,49 @@ Navigate to: **http://localhost:3045**
 
 ---
 
-## 🏠 Multiple Containers (Casa + Other Systems)
+## 🏠 Multiple Containers (Home + Other Systems)
 
 Want to run Echofy on different machines with Docker? Use this `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
-
+version: '3'
 services:
-  # Casa (your home PC)
-  echofy-casa:
-    build: .
-    container_name: echofy-casa
+  # Home PC
+  echofy-home:
+    image: kwayorange/echofy:latest
+    container_name: echofy-home
     restart: unless-stopped
     ports:
       - "3045:3045"
-    env_file:
-      - .env.casa
     volumes:
-      - ./downloads-casa:/app/downloads
-    shm_size: '256mb'
+      - /DATA/AppData/echofy:/app
+      - /DATA/Media/Music:/app/downloads
     environment:
       - NODE_ENV=production
       - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox
+    shm_size: '256mb'
 
   # Other system
-  echofy-outros:
-    build: .
-    container_name: echofy-outros
+  echofy-other:
+    image: kwayorange/echofy:latest
+    container_name: echofy-other
     restart: unless-stopped
     ports:
       - "3046:3045"
-    env_file:
-      - .env.outros
     volumes:
-      - ./downloads-outros:/app/downloads
-    shm_size: '256mb'
+      - ./downloads-other:/app/downloads
     environment:
       - NODE_ENV=production
       - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox
+    shm_size: '256mb'
 ```
 
 **Usage:**
 ```bash
 docker-compose up -d
 
-# Casa: http://localhost:3045 (downloads in ./downloads-casa/)
-# Other: http://localhost:3046 (downloads in ./downloads-outros/)
+# Home: http://localhost:3045
+# Other: http://localhost:3046
 ```
 
 ---
@@ -198,6 +246,7 @@ Echofy/
 - Improved filename sanitization and duplicate-filename collision handling.
 - Periodic refresh of the Spotidown page (every 15 minutes).
 - **Docker support** — optional, run with `docker-compose up -d` or without Docker locally.
+- **Published on Docker Hub** — `kwayorange/echofy:latest` for easy deployment!
 
 ---
 
@@ -296,6 +345,7 @@ If not provided, Echofy falls back to embed scraping.
 - **Frontend**: HTML + CSS + Vanilla JS + GSAP
 - **Automation**: Puppeteer + Spotidown
 - **Containerization**: Docker + Docker Compose (Optional)
+- **Docker Registry**: Docker Hub (`kwayorange/echofy:latest`)
 
 ---
 
